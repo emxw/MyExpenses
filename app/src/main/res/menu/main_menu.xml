@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/ic_baseline_home_24"
+        android:title="Home"/>
+
+    <item
+        android:id="@+id/category"
+        android:icon="@drawable/ic_baseline_category_24"
+        android:title="Category"/>
+
+    <item
+        android:id="@+id/chart"
+        android:icon="@drawable/ic_baseline_pie_chart_24"
+        android:title="Chart"/>
+
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/ic_baseline_account_circle_24"
+        android:title="Profile"/>
+
+    <item
+        android:id="@+id/alarm"
+        android:icon="@drawable/ic_baseline_access_alarm_24"
+        android:title="Set an Alarm"/>
+
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/ic_baseline_logout"
+        android:title="Logout"/>
+
+
+
+</menu>
