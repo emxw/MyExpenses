@@ -16,14 +16,6 @@
         android:layout_height="wrap_content"
         android:background="@color/purple_200"/>
 
-    <ImageView
-        android:id="@+id/profilePicture"
-        android:layout_margin="5dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/profile_image"/>
-
     <TextView
         android:layout_margin="5dp"
         android:textSize="18sp"

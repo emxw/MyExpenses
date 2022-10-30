@@ -1,10 +1,13 @@
 package com.example.myexpenses;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,6 +28,8 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
     private Context context;
     ArrayList<ModelCategory> categoryArrayList;
     private FirebaseFirestore fStore;
+    private String post_key, userID, categoryItem;
+    private FirebaseAuth mAuth;
 
 
     public AdapterCategory( ArrayList<ModelCategory> categoryArrayList, Context context) {
@@ -42,7 +48,6 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
     public void onBindViewHolder(@NonNull HolderCategory holder, int position) {
         //get data
         ModelCategory model = categoryArrayList.get(position);
-//        String id = model.getId();
         String category = model.getCategory();
         String uid = model.getUid();
         //long timestamp = model.getTimestamp();
@@ -51,6 +56,15 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
         holder.categoryTv.setText(category);
 
         fStore = FirebaseFirestore.getInstance();
+
+        holder.editBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                post_key = model.getId();
+                categoryItem = model.getCategory();
+                updateData();
+            }
+        });
 
         //handle delete button click
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +82,52 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
                 });
             }
         });
+
+    }
+
+    private void updateData() {
+        AlertDialog.Builder myDialog= new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View mView = inflater.inflate(R.layout.update_category, null);
+
+        myDialog.setView(mView);
+        final  AlertDialog dialog = myDialog.create();
+        mAuth = FirebaseAuth.getInstance();
+        userID = mAuth.getCurrentUser().getUid();
+        final EditText updateCategory = mView.findViewById(R.id.updateCategory);
+
+        updateCategory.setText(String.valueOf(categoryItem));
+
+        Button btnUpdate = mView.findViewById(R.id.btnUpdate);
+
+        fStore = FirebaseFirestore.getInstance();
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                categoryItem = updateCategory.getText().toString();
+
+                if (categoryItem.isEmpty()) {
+                    Toast.makeText(view.getContext(), "Category is required!", Toast.LENGTH_LONG).show();
+                } else {
+                    ModelCategory modelCategory = new ModelCategory(post_key, categoryItem, userID);
+                    fStore.collection("Categories").document(post_key)
+                            .update(
+                                    "category", modelCategory.getCategory()
+                            ).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(view.getContext(), "Updated successfully!", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(context, AddCategory.class);
+                            context.startActivity(intent);
+
+                        }
+                    });
+                    dialog.dismiss();
+                }
+            }
+        });
+        dialog.show();
     }
 
     @Override
@@ -78,13 +138,14 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
     class HolderCategory extends RecyclerView.ViewHolder {
 
         TextView categoryTv;
-        ImageButton deleteBtn;
+        ImageButton editBtn, deleteBtn;
 
         public HolderCategory(@NonNull View itemView) {
             super(itemView);
 
             //init ui views
             categoryTv = itemView.findViewById(R.id.categoryTv);
+            editBtn = itemView.findViewById(R.id.editBtn);
             deleteBtn = itemView.findViewById(R.id.deleteBtn);
 
         }

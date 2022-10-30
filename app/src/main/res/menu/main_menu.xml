@@ -30,6 +30,8 @@
         android:icon="@drawable/ic_baseline_logout"
         android:title="Logout"/>
 
-
+    <item
+        android:id="@+id/ocr"
+        android:title="OCR Test"/>
 
 </menu>

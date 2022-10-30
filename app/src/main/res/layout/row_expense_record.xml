@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentPadding="10dp"
+    app:cardUseCompatPadding="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageER"
+            android:layout_width="100dp"
+            android:layout_height="110dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="10dp"
+            android:padding="2dp" />
+
+        <TextView
+            android:id="@+id/dateER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/imageER"
+            android:padding="4dp"
+            android:text="Date" />
+
+        <TextView
+            android:id="@+id/titleER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/dateER"
+            android:layout_toRightOf="@+id/imageER"
+            android:padding="4dp"
+            android:text="Title" />
+
+        <TextView
+            android:id="@+id/categoryER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/titleER"
+            android:layout_toRightOf="@+id/imageER"
+            android:padding="4dp"
+            android:text="Category" />
+
+        <TextView
+            android:id="@+id/amountER"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/categoryER"
+            android:layout_toRightOf="@+id/imageER"
+            android:padding="4dp"
+            android:text="Amount" />
+
+        <ImageButton
+            android:id="@+id/editBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_baseline_edit_24"
+            android:layout_below="@id/imageER"
+            android:background="@drawable/shape_button"/>
+
+        <ImageButton
+            android:id="@+id/deleteBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/shape_button"
+            android:layout_below="@id/imageER"
+            android:layout_toRightOf="@id/editBtn"
+            android:src="@drawable/ic_baseline_delete_forever_24" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

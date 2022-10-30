@@ -29,10 +29,13 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
@@ -42,8 +45,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -52,6 +58,8 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,12 +71,16 @@ public class HomeFragment extends AppCompatActivity {
     private ImageView image;
     private EditText title, date, amount;
     private Button chooseGallery, addRecord;
+    private ProgressDialog progressDialog;
     private Uri imageUri;
-    private String downloadUri;
+    private String downloadUri, imageString;
     private FirebaseFirestore fStore;
     private FirebaseAuth mAuth;
     private FirebaseStorage storage;
     private StorageReference storageReference;
+    private Spinner categorySpinner;
+    ArrayList<String> spinnerList;
+    ArrayAdapter<String> spinnerAdapter;
 
 //    ActivityResultLauncher<Intent> launchActivityForGalleryResult;
 //    String currentImagePath = null;
@@ -101,11 +113,20 @@ public class HomeFragment extends AppCompatActivity {
         amount = findViewById(R.id.amount);
         chooseGallery = findViewById(R.id.addGallery);
         addRecord = findViewById(R.id.addRecord);
+        categorySpinner = findViewById(R.id.categorySpinner);
+
+        progressDialog = new ProgressDialog(this);
 
         mAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
+        storageReference = storage.getReference().child("Images");
+
+        spinnerList = new ArrayList<String>();
+        spinnerAdapter = new ArrayAdapter<String>(HomeFragment.this, android.R.layout.simple_spinner_dropdown_item, spinnerList);
+        categorySpinner.setAdapter(spinnerAdapter);
+
+        loadCategorySpinner();
 
         // allowing permissions of gallery and camera
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -140,61 +161,104 @@ public class HomeFragment extends AppCompatActivity {
             }
         });
 
-//        launchActivityForGalleryResult = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                new ActivityResultCallback<ActivityResult>() {
-//                    @Override
-//                    public void onActivityResult(ActivityResult result) {
-//                        try {
-//                            if (result.getData() != null) {
-//                                Intent data = result.getData();
-//                                imageUri = data.getData();
-//                                String[] filePath = {MediaStore.Images.Media.DATA};
-//                                Cursor c = getContentResolver().query(imageUri, filePath, null, null, null);
-//                                c.moveToFirst();
-//                                int columnIndex = c.getColumnIndex(filePath[0]);
-//                                currentImagePath = c.getString(columnIndex);
-//                                c.close();
-//                                Bitmap thumbnail = (BitmapFactory.decodeFile(currentImagePath));
-//                                String mimeType = MimeTypeMap.getFileExtensionFromUrl(currentImagePath);
-//                                if (mimeType != null && mimeType.endsWith("mp4")) {
-//                                    Toast.makeText(HomeFragment.this, "Uploaded file cannot be video, Please try again...", Toast.LENGTH_SHORT).show();
-//                                } else {
-//                                    if (mimeType!=null && thumbnail!=null){
-//                                        mImgUpload.setVisibility(View.VISIBLE);
-//                                        mImgUpload.setImageBitmap(thumbnail);
-//                                        mTvImgUpload.setVisibility(View.GONE);
-//                                        viewProceedCancelButton();
-//                                    }else{
-//                                        Toast.makeText(HomeFragment.this, "Upload Failed, Please try again...", Toast.LENGTH_SHORT).show();
-//
-//                                    }
-//                                }
-//                            } else {
-//                                Toast.makeText(HomeFragment.this, "No image uploaded", Toast.LENGTH_SHORT).show();
-//                            }
-//                        } catch (Exception e) {
-//                            Toast.makeText(HomeFragment.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-
-
         addRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String titleString = title.getText().toString();
-//                String priceString = amount.getText().toString();
-//
-//                if (TextUtils.isEmpty(titleString)){
-//                    title.setError("Title is required");
-//                    title.requestFocus();
-//                    return;
-//                }
-//                if (TextUtils.isEmpty(priceString)){
-//                    amount.setError("Amount is required");
-//                }
-                //showImagePicDialog();
+                String titleString = title.getText().toString();
+                String dateString = date.getText().toString();
+                String amountString = amount.getText().toString();
+                String categoryString = categorySpinner.getSelectedItem().toString();
+                String userID = mAuth.getCurrentUser().getUid();
+
+                if (TextUtils.isEmpty(titleString)){
+                    title.setError("Title is required");
+                    title.requestFocus();
+                    return;
+                }
+                if (imageUri == null){
+                    Toast.makeText(HomeFragment.this, "Product image is required!", Toast.LENGTH_SHORT).show();
+                }
+                if (TextUtils.isEmpty(amountString)){
+                    amount.setError("Amount is required");
+                    amount.requestFocus();
+                    return;
+                }
+                else{
+                    progressDialog.setMessage("In Progress");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    progressDialog.show();
+
+                    Calendar c = Calendar.getInstance();
+
+                    SimpleDateFormat now = new SimpleDateFormat("MM-dd-yyyy");
+                    String currDate=now.format(c.getTime());
+
+                    SimpleDateFormat time = new SimpleDateFormat("HH:mm:ss");
+                    String currTime=time.format(c.getTime());
+
+                    imageString = currDate+currTime;
+
+                    StorageReference fileRef= storageReference.child(imageUri.getLastPathSegment() + imageString+ ".jpg");
+
+                    final UploadTask uploadTask = fileRef.putFile(imageUri);
+
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(HomeFragment.this, "Upload image failure", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                                @Override
+                                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                    if (!task.isSuccessful()){
+                                        throw task.getException();
+                                    }
+                                    downloadUri = fileRef.getDownloadUrl().toString();
+                                    return fileRef.getDownloadUrl();
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()){
+                                        downloadUri = task.getResult().toString();
+                                        DocumentReference documentReference = fStore.collection("User Record Information").document(userID).collection("Records").document();
+                                        Map<String, Object> addRecord= new HashMap<>();
+                                        addRecord.put("Image", downloadUri);
+                                        addRecord.put("Title", titleString);
+                                        addRecord.put("Date", dateString);
+                                        addRecord.put("Amount", amountString);
+                                        addRecord.put("Category", categoryString);
+                                        documentReference.set(addRecord);
+                                        progressDialog.dismiss();
+                                        Toast.makeText(HomeFragment.this, "New record has been added", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(HomeFragment.this, MainActivity.class);
+                                        startActivity(intent);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void loadCategorySpinner() {
+        fStore.collection("Categories").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()){
+                    for (QueryDocumentSnapshot document : task.getResult()){
+                        String category = document.getString("category");
+
+                        spinnerList.add(category);
+                    }
+                    spinnerAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
@@ -301,7 +365,6 @@ public class HomeFragment extends AppCompatActivity {
         if (requestCode==1 && resultCode==RESULT_OK && data!=null && data.getData()!=null){
             imageUri = data.getData();
             image.setImageURI(imageUri);
-            uploadPic();
         }
 //        else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
 //            CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -310,76 +373,6 @@ public class HomeFragment extends AppCompatActivity {
 //                Picasso.with(this).load(resultUri).into(image);
 //            }
 //        }
-    }
-
-    private void uploadPic() {
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Uploading");
-        progressDialog.show();
-
-        StorageReference fileRef = storageReference.child("images/");
-        final UploadTask uploadTask = fileRef.putFile(imageUri);
-
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(HomeFragment.this, "Upload image failure", Toast.LENGTH_SHORT).show();
-
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()){
-                            throw task.getException();
-                        }
-                        downloadUri = fileRef.getDownloadUrl().toString();
-                        return fileRef.getDownloadUrl();
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()){
-                            downloadUri = task.getResult().toString();
-                            String userID = mAuth.getCurrentUser().getUid();
-                            DocumentReference documentReference = fStore.collection("User Record Information").document(userID).collection("Images From Gallery").document();
-                            Map<String, Object> AddImage= new HashMap<>();
-                            AddImage.put("Image", downloadUri);
-                            documentReference.set(AddImage);
-                        }
-                    }
-                });
-            }
-        });
-
-//        fileRef.putFile(imageUri)
-//                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//
-//                        progressDialog.dismiss();
-//                        //Toast.makeText(getApplicationContext(), "Image Uploaded", Toast.LENGTH_LONG).show();
-//                        Snackbar.make(findViewById(android.R.id.content), "Image Uploaded", Snackbar.LENGTH_LONG).show();
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        progressDialog.dismiss();
-//                        Toast.makeText(getApplicationContext(), "Failed To Upload", Toast.LENGTH_LONG).show();
-//                    }
-//                })
-//                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-//                        double progressPercent = (100.00 + taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-//                        progressDialog.setMessage("Progress: " + (int) progressPercent + "%");
-//                    }
-//                });
-
     }
 
     @Override

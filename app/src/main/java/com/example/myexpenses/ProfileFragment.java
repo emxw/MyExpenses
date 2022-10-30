@@ -63,7 +63,6 @@ public class ProfileFragment extends AppCompatActivity {
         username = findViewById(R.id.username);
         mobileNumber = findViewById(R.id.mobileNumber);
         email = findViewById(R.id.email);
-        profilePic = findViewById(R.id.profilePicture);
 
         mAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
@@ -79,64 +78,6 @@ public class ProfileFragment extends AppCompatActivity {
                 mobileNumber.setText(documentSnapshot.getString("mobileNumber"));
             }
         });
-
-        profilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                choosePicture();
-            }
-        });
-
-    }
-
-    private void choosePicture() {
-        Intent intent = new Intent();
-        intent.setType("profilePic/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, 1);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==1 && resultCode==RESULT_OK && data!=null && data.getData()!=null){
-            imageUri = data.getData();
-            profilePic.setImageURI(imageUri);
-            uploadPic(imageUri);
-        }
-    }
-
-    private void uploadPic(Uri imageUri) {
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Uploading");
-        progressDialog.show();
-
-        StorageReference riversRef = storageReference.child("profile.jpg");
-        riversRef.putFile(imageUri)
-                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_LONG).show();
-                        //Snackbar.make(findViewById(android.R.id.content), "Image Uploaded", Snackbar.LENGTH_LONG).show();
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        progressDialog.dismiss();
-                        Toast.makeText(getApplicationContext(), "Failed To Upload", Toast.LENGTH_LONG).show();
-                    }
-                });
-//                .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
-//                        double progressPercent = (100.00 + taskSnapshot.getBytesTransferred()/taskSnapshot.getTotalByteCount());
-//                        progressDialog.setMessage("Progress: " + (int) progressPercent + "%");
-//                    }
-//                });
 
     }
 
