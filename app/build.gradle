@@ -51,12 +51,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation platform('com.google.firebase:firebase-bom:30.3.2')
     implementation 'com.google.firebase:firebase-analytics'
-    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
-    implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:18.0.2'
     compileOnly 'com.google.android.wearable:wearable:2.8.1'
     implementation 'com.github.AnyChart:AnyChart-Android:1.1.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    implementation 'com.google.android.gms:play-services-vision:19.0.0'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
 
 }

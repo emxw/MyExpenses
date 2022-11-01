@@ -6,6 +6,11 @@
         android:title="Home"/>
 
     <item
+        android:id="@+id/ocr"
+        android:icon="@drawable/ic_baseline_document_scanner_24"
+        android:title="OCR"/>
+
+    <item
         android:id="@+id/category"
         android:icon="@drawable/ic_baseline_category_24"
         android:title="Category"/>
@@ -29,9 +34,5 @@
         android:id="@+id/logout"
         android:icon="@drawable/ic_baseline_logout"
         android:title="Logout"/>
-
-    <item
-        android:id="@+id/ocr"
-        android:title="OCR Test"/>
 
 </menu>

@@ -85,7 +85,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadExpenseRecords() {
-        fStore.collection("User Record Information").document(userID).collection("Records").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        fStore.collection("User Record Information").document(userID)
+                .collection("Records").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 expenseRecordArrayList.clear();
@@ -120,7 +122,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
             case R.id.ocr:
-                Intent i = new Intent(MainActivity.this, OCRActivity.class);
+                Intent i = new Intent(MainActivity.this, OCRFragment.class);
                 startActivity(i);
                 break;
 
@@ -159,6 +161,4 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
         finish();
     }
-
-
 }

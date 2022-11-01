@@ -18,8 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyExpenses">
-        <activity android:name=".ChartsFragment"></activity>
-        <activity android:name=".OCRActivity" />
+        <activity android:name=".OCRScan"/>
+        <activity android:name=".OCRFragment" />
+        <activity android:name=".ChartsFragment" />
         <activity android:name=".Category" />
         <activity android:name=".AddCategory" />
         <activity android:name=".AlarmNotificationFragment" />

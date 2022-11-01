@@ -91,7 +91,9 @@ public class AdapterExpenseRecord extends RecyclerView.Adapter<AdapterExpenseRec
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fStore.collection("User Record Information").document(userID).collection("Records").document(model.getId()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                fStore.collection("User Record Information").document(userID)
+                        .collection("Records").document(model.getId())
+                        .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){

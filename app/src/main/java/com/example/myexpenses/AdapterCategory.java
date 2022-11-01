@@ -70,12 +70,13 @@ public class AdapterCategory extends RecyclerView.Adapter<AdapterCategory.Holder
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fStore.collection("Categories").document(model.getId()).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                fStore.collection("Categories").document(model.getId())
+                        .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(context,"Deleted successfully!", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(context,AddCategory.class);
+                            Intent intent = new Intent(context, AddCategory.class);
                             context.startActivity(intent);
                         }
                     }

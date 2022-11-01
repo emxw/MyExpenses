@@ -100,23 +100,6 @@ public class RegisterUser extends AppCompatActivity {
                     progressDialog.setCanceledOnTouchOutside(false);
                     progressDialog.show();
 
-//                    mAuth.createUserWithEmailAndPassword(emailString, passwordString).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-//                        @Override
-//                        public void onSuccess(AuthResult authResult) {
-//                            userID = mAuth.getCurrentUser().getUid();
-//                            DocumentReference documentReference = fStore.collection("Users").document(userID);
-//                            Map<String, Object> user = new HashMap<>();
-//                            user.put("username", usernameString);
-//                            user.put("mobileNumber", mobileNumberString);
-//                            user.put("email", emailString);
-//                            documentReference.set(user);
-//                            Toast.makeText(RegisterUser.this, "User is registered", Toast.LENGTH_LONG).show();
-//                            Intent intent = new Intent(RegisterUser.this, MainActivity.class);
-//                            startActivity(intent);
-//
-//                        }
-//                    });
-
                     mAuth.createUserWithEmailAndPassword(emailString, passwordString).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
