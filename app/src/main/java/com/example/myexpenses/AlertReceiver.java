@@ -18,7 +18,7 @@ public class AlertReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "notificationAlarmId")
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("MyExpenses Alarm Notification")
+                .setContentTitle("MyExpenses")
                 .setContentText("Have you managed your expenses for today?")
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
