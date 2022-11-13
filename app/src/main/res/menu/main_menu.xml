@@ -16,9 +16,9 @@
         android:title="Category"/>
 
     <item
-        android:id="@+id/chart"
+        android:id="@+id/analytics"
         android:icon="@drawable/ic_baseline_pie_chart_24"
-        android:title="Chart"/>
+        android:title="Analytics"/>
 
     <item
         android:id="@+id/profile"

@@ -21,6 +21,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 
     private void loadExpenseRecords() {
         fStore.collection("User Record Information").document(userID)
-                .collection("Records").get()
+                .collection("Records").orderBy("Date", Query.Direction.DESCENDING).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity
                 startActivity(profileIntent);
                 break;
 
-            case R.id.chart:
+            case R.id.analytics:
                 Intent chartsIntent = new Intent(MainActivity.this, ChartsFragment.class);
                 startActivity(chartsIntent);
                 break;

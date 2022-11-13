@@ -2,76 +2,106 @@ package com.example.myexpenses;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class ChartsFragment extends AppCompatActivity {
 
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
+    private RecyclerView recyclerViewHistory;
+    private Toolbar mToolbar;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore fStore;
+    private ArrayList<ModelAnalytics> analyticsArrayList;
+    private AdapterAnalytics adapterAnalytics;
+    private String userID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charts_fragment);
 
-        tabLayout = findViewById(R.id.tabLayout);
-        viewPager = findViewById(R.id.viewPager);
+        recyclerViewHistory = findViewById(R.id.recyclerViewHistory);
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle("Analytics");
 
-        tabLayout.addTab(tabLayout.newTab().setText("Daily"));
-        tabLayout.addTab(tabLayout.newTab().setText("Weekly"));
-        tabLayout.addTab(tabLayout.newTab().setText("Monthly"));
-        tabLayout.addTab(tabLayout.newTab().setText("Yearly"));
+        //set back button on the action bar to go back to home
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-            @NonNull
+        mAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
+
+        recyclerViewHistory.setHasFixedSize(true);
+        recyclerViewHistory.setLayoutManager(new LinearLayoutManager(this));
+
+        analyticsArrayList = new ArrayList<>();
+        adapterAnalytics = new AdapterAnalytics(analyticsArrayList,ChartsFragment.this);
+        userID = mAuth.getCurrentUser().getUid();
+        recyclerViewHistory.setAdapter(adapterAnalytics);
+
+        loadAnalytics();
+    }
+
+    private void loadAnalytics() {
+
+        fStore.collection("Categories").document(userID)
+                .collection("Category").orderBy("category", Query.Direction.ASCENDING).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        analyticsArrayList.clear();
+
+                        for (int i=0; i<queryDocumentSnapshots.size(); i++){
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(i);
+                            if (documentSnapshot.exists()){
+                                String id = documentSnapshot.getId();
+                                String category = documentSnapshot.getString("category");
+                                String amount = documentSnapshot.getString("total amount");
+
+                                ModelAnalytics modelAnalytics = new ModelAnalytics(id, category, amount);
+
+                                analyticsArrayList.add(modelAnalytics);
+                            }
+                        }
+                        adapterAnalytics.notifyDataSetChanged();
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public Fragment getItem(int position) {
-                switch (position){
-                    case 0:
-                        Daily daily = new Daily();
-                        return daily;
-                    case 1:
-                        Weekly weekly = new Weekly();
-                        return weekly;
-                    case 2:
-                        Monthly monthly = new Monthly();
-                        return monthly;
-                    case 3:
-                        Yearly yearly = new Yearly();
-                        return yearly;
-                    default:
-                        return null;
+            public void onFailure(@NonNull Exception e) {
 
-                }
-            }
-
-            @Override
-            public int getCount() {
-                return tabLayout.getTabCount();
             }
         });
+    }
 
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

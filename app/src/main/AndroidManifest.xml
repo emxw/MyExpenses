@@ -21,8 +21,10 @@
         <activity android:name=".OCRScan"/>
         <activity android:name=".OCRFragment" />
         <activity android:name=".ChartsFragment" />
-        <activity android:name=".Category" />
-        <activity android:name=".AddCategory" />
+        <activity android:name=".Category"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".AddCategory"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".AlarmNotificationFragment" />
         <activity android:name=".HomeFragment" />
         <activity android:name=".ProfileFragment" />

@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:contentPadding="10dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="10dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -57,19 +58,20 @@
 
         <ImageButton
             android:id="@+id/editBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_baseline_edit_24"
             android:layout_below="@id/imageER"
+            android:layout_toLeftOf="@+id/deleteBtn"
             android:background="@drawable/shape_button"/>
 
         <ImageButton
             android:id="@+id/deleteBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:background="@drawable/shape_button"
             android:layout_below="@id/imageER"
-            android:layout_toRightOf="@id/editBtn"
+            android:layout_alignParentRight="true"
             android:src="@drawable/ic_baseline_delete_forever_24" />
 
     </RelativeLayout>

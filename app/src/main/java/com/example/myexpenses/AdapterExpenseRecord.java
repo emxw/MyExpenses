@@ -25,6 +25,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -91,6 +93,18 @@ public class AdapterExpenseRecord extends RecyclerView.Adapter<AdapterExpenseRec
         holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                DocumentReference category = fStore.collection("Categories").document(userID).collection("Category").document(model.getCategory());
+                category.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String totalAmountString = documentSnapshot.getString("total amount");
+                        Integer totalAmountInt = Integer.parseInt(totalAmountString);
+                        Integer amountStringInt = Integer.parseInt(model.getAmount());
+                        Integer totalAmountAdded = totalAmountInt - amountStringInt;
+                        category.update("total amount", totalAmountAdded + "");
+                    }
+                });
+
                 fStore.collection("User Record Information").document(userID)
                         .collection("Records").document(model.getId())
                         .delete().addOnCompleteListener(new OnCompleteListener<Void>() {

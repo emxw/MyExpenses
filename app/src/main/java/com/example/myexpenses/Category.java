@@ -61,6 +61,7 @@ public class Category extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String category = categoryEt.getText().toString().trim();
+                String userID = mAuth.getCurrentUser().getUid();
 
                 if (TextUtils.isEmpty(category)){
                     Toast.makeText(Category.this, "Please enter category", Toast.LENGTH_SHORT).show();
@@ -72,13 +73,13 @@ public class Category extends AppCompatActivity {
 
                     long timeStamp = System.currentTimeMillis();
 
-                    DocumentReference documentReference = fStore.collection("Categories").document();
-                    Map<String, Object> categorydb = new HashMap<>();
-//                    categorydb.put("id", ""+timeStamp);
-                    categorydb.put("category", ""+category);
-                    //categorydb.put("timestamp", timeStamp);
-                    categorydb.put("uid", ""+mAuth.getUid());
-                    documentReference.set(categorydb);
+                    DocumentReference documentReference = fStore.collection("Categories").document(userID)
+                            .collection("Category").document(category);
+                    Map<String, Object> addCategory = new HashMap<>();
+                    addCategory.put("category", ""+category);
+                    addCategory.put("uid", ""+mAuth.getUid());
+                    addCategory.put("total amount", "0");
+                    documentReference.set(addCategory);
                     mProgressDialog.dismiss();
                     Toast.makeText(Category.this, "Category added successfully", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(Category.this, AddCategory.class);
@@ -88,14 +89,14 @@ public class Category extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch (item.getItemId()){
+//            case android.R.id.home:
+//                finish();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 }

@@ -48,6 +48,7 @@
         android:layout_margin="5dp"
         android:textSize="18sp"
         android:textColor="#000"
+        android:enabled="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
@@ -69,7 +70,7 @@
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/editProfile"
+        android:id="@+id/updateProfile"
         android:layout_margin="20dp"
         android:layout_gravity="center"
         android:layout_width="wrap_content"

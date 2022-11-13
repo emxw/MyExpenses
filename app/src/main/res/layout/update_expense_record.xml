@@ -26,15 +26,16 @@
             android:layout_height="wrap_content"
             android:hint="Date" />
 
-        <Spinner
-            android:id="@+id/updateCategory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+<!--        <Spinner-->
+<!--            android:id="@+id/updateCategory"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"/>-->
 
         <EditText
             android:id="@+id/updateAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:hint="Amount"/>
 
     </LinearLayout>

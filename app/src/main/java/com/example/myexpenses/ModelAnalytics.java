@@ -1,15 +1,16 @@
 package com.example.myexpenses;
 
-public class ModelCategory {
-    String id, category, uid;
+public class ModelAnalytics {
 
-    public ModelCategory() {
+    String id, category, totalAmount;
+
+    public ModelAnalytics() {
     }
 
-    public ModelCategory(String id, String category, String uid) {
+    public ModelAnalytics(String id, String category, String totalAmount) {
         this.id = id;
         this.category = category;
-        this.uid = uid;
+        this.totalAmount = totalAmount;
     }
 
     public String getId() {
@@ -28,12 +29,11 @@ public class ModelCategory {
         this.category = category;
     }
 
-    public String getUid() {
-        return uid;
+    public String getTotalAmount() {
+        return totalAmount;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setTotalAmount(String totalAmount) {
+        this.totalAmount = totalAmount;
     }
-
 }

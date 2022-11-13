@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -15,30 +14,19 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/ocrTitleTv"
+            android:id="@+id/categoryTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OCR Title"
-            android:textStyle="bold"
+            android:text="Category Title"
             android:layout_weight="1"
             android:textColor="@color/black"/>
 
         <TextView
-            android:id="@+id/ocrOutputTv"
-            android:layout_width="wrap_content"
+            android:id="@+id/totalAmountTv"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="OCR Output"
-            android:textColor="@color/black" />
-
-
-        <ImageButton
-            android:id="@+id/deleteOCRBtn"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_gravity="right"
-            android:src="@drawable/ic_baseline_delete_forever_24"
-            android:background="@drawable/shape_button"/>
+            android:text="Total Amount"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 

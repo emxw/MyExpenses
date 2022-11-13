@@ -47,6 +47,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -73,7 +74,7 @@ public class HomeFragment extends AppCompatActivity {
     private Button chooseGallery, addRecord;
     private ProgressDialog progressDialog;
     private Uri imageUri;
-    private String downloadUri, imageString;
+    private String downloadUri, imageString, userID;
     private FirebaseFirestore fStore;
     private FirebaseAuth mAuth;
     private FirebaseStorage storage;
@@ -81,6 +82,7 @@ public class HomeFragment extends AppCompatActivity {
     private Spinner categorySpinner;
     ArrayList<String> spinnerList;
     ArrayAdapter<String> spinnerAdapter;
+
 
 //    ActivityResultLauncher<Intent> launchActivityForGalleryResult;
 //    String currentImagePath = null;
@@ -121,6 +123,7 @@ public class HomeFragment extends AppCompatActivity {
         fStore = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference().child("Images");
+        userID = mAuth.getCurrentUser().getUid();
 
         spinnerList = new ArrayList<String>();
         spinnerAdapter = new ArrayAdapter<String>(HomeFragment.this, android.R.layout.simple_spinner_dropdown_item, spinnerList);
@@ -168,15 +171,11 @@ public class HomeFragment extends AppCompatActivity {
                 String dateString = date.getText().toString();
                 String amountString = amount.getText().toString();
                 String categoryString = categorySpinner.getSelectedItem().toString();
-                String userID = mAuth.getCurrentUser().getUid();
 
                 if (TextUtils.isEmpty(titleString)){
                     title.setError("Title is required");
                     title.requestFocus();
                     return;
-                }
-                if (imageUri == null){
-                    Toast.makeText(HomeFragment.this, "Product image is required!", Toast.LENGTH_SHORT).show();
                 }
                 if (TextUtils.isEmpty(amountString)){
                     amount.setError("Amount is required");
@@ -242,13 +241,28 @@ public class HomeFragment extends AppCompatActivity {
                             });
                         }
                     });
+
+                    DocumentReference category = fStore.collection("Categories").document(userID).collection("Category").document(categoryString);
+                    category.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String totalAmountString = documentSnapshot.getString("total amount");
+                            Integer totalAmountInt = Integer.parseInt(totalAmountString);
+                            Integer amountStringInt = Integer.parseInt(amountString);
+                            Integer totalAmountAdded = totalAmountInt + amountStringInt;
+                            category.update("total amount", totalAmountAdded + "");
+                        }
+                    });
+
                 }
+
             }
+
         });
     }
 
     private void loadCategorySpinner() {
-        fStore.collection("Categories").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        fStore.collection("Categories").document(userID).collection("Category").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()){
@@ -375,14 +389,14 @@ public class HomeFragment extends AppCompatActivity {
 //        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch (item.getItemId()){
+//            case android.R.id.home:
+//                finish();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 }

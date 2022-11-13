@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:contentPadding="10dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,17 +21,17 @@
             android:layout_weight="1"
             android:textColor="@color/black"/>
 
-        <ImageButton
-            android:id="@+id/editBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_baseline_edit_24"
-            android:background="@drawable/shape_button"/>
+<!--        <ImageButton-->
+<!--            android:id="@+id/editBtn"-->
+<!--            android:layout_width="45dp"-->
+<!--            android:layout_height="45dp"-->
+<!--            android:src="@drawable/ic_baseline_edit_24"-->
+<!--            android:background="@drawable/shape_button"/>-->
 
         <ImageButton
             android:id="@+id/deleteBtn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_baseline_delete_forever_24"
             android:background="@drawable/shape_button"/>
 

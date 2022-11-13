@@ -162,7 +162,7 @@ public class OCRScan extends AppCompatActivity {
                 Uri resultUri= result.getUri();
 
                 try {
-                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri); // bitmap crop liao de image
                     getTextFromImage(bitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -179,12 +179,12 @@ public class OCRScan extends AppCompatActivity {
             Toast.makeText(OCRScan.this,"Error occurred", Toast.LENGTH_SHORT).show();
         }
         else{
-            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-            SparseArray<TextBlock> textBlockSparseArray = recognizer.detect(frame);
-            StringBuilder stringBuilder = new StringBuilder();
-            for(int i =0; i<textBlockSparseArray.size();i++){
+            Frame frame = new Frame.Builder().setBitmap(bitmap).build(); //get crop de image
+            SparseArray<TextBlock> textBlockSparseArray = recognizer.detect(frame); //detect textblock from the frame
+            StringBuilder stringBuilder = new StringBuilder(); //build string
+            for(int i =0; i<textBlockSparseArray.size();i++){  //based on size, then get value from textblock
                 TextBlock textBlock = textBlockSparseArray.valueAt(i);
-                stringBuilder.append(textBlock.getValue());
+                stringBuilder.append(textBlock.getValue()); //convert to string
                 stringBuilder.append("\n");
             }
             ocrOutput.setText(stringBuilder.toString());
@@ -192,7 +192,6 @@ public class OCRScan extends AppCompatActivity {
             ocrTitle.setVisibility(View.VISIBLE);
             button_add.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override

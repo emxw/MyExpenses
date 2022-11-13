@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +34,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ProfileFragment extends AppCompatActivity {
@@ -41,11 +44,12 @@ public class ProfileFragment extends AppCompatActivity {
     private TextView username, mobileNumber, email;
     private ImageView profilePic;
     private Uri imageUri;
-    //private Button change_password;
+    private Button updateProfile;
     private FirebaseAuth mAuth;
     private FirebaseFirestore fstore;
     private FirebaseStorage storage;
     private StorageReference storageReference;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +67,13 @@ public class ProfileFragment extends AppCompatActivity {
         username = findViewById(R.id.username);
         mobileNumber = findViewById(R.id.mobileNumber);
         email = findViewById(R.id.email);
+        updateProfile = findViewById(R.id.updateProfile);
 
         mAuth = FirebaseAuth.getInstance();
         fstore = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
-        String userID = mAuth.getCurrentUser().getUid();
+        userID = mAuth.getCurrentUser().getUid();
         DocumentReference documentReference = fstore.collection("Users").document(userID);
         documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
@@ -76,6 +81,33 @@ public class ProfileFragment extends AppCompatActivity {
                 username.setText(documentSnapshot.getString("username"));
                 email.setText(documentSnapshot.getString("email"));
                 mobileNumber.setText(documentSnapshot.getString("mobileNumber"));
+            }
+        });
+
+        updateProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String usernameString = username.getText().toString();
+                String mobileNumString = mobileNumber.getText().toString();
+
+                if (TextUtils.isEmpty(usernameString)){
+                    username.setError("Username is required");
+                    username.requestFocus();
+                    return;
+                }
+                if (TextUtils.isEmpty(mobileNumString)){
+                    mobileNumber.setError("Mobile number is required");
+                    mobileNumber.requestFocus();
+                    return;
+                }
+                else{
+                    DocumentReference documentReference = fstore.collection("Users").document(userID);
+                    Map<String, Object> profileInfo = new HashMap<>();
+                    profileInfo.put("username", usernameString);
+                    profileInfo.put("mobileNumber", mobileNumString);
+                    Toast.makeText(ProfileFragment.this, "Profile have been updated successfully!", Toast.LENGTH_LONG).show();
+                    documentReference.update(profileInfo);
+                }
             }
         });
 

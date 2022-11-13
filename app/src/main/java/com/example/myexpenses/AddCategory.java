@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class AddCategory extends AppCompatActivity {
     private ArrayList<ModelCategory> categoryArrayList;
     private AdapterCategory adapterCategory;
     private RecyclerView recyclerView;
-    private String UserID;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class AddCategory extends AppCompatActivity {
 
         categoryArrayList = new ArrayList<>();
         adapterCategory = new AdapterCategory(categoryArrayList,AddCategory.this);
-        UserID = mAuth.getCurrentUser().getUid();
+        userID = mAuth.getCurrentUser().getUid();
         recyclerView.setAdapter(adapterCategory);
 
         loadCategories();
@@ -75,7 +76,9 @@ public class AddCategory extends AppCompatActivity {
     }
 
     private void loadCategories() {
-        fStore.collection("Categories").whereEqualTo("uid", UserID).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        fStore.collection("Categories").document(userID)
+                .collection("Category").orderBy("category", Query.Direction.ASCENDING)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 categoryArrayList.clear();
@@ -86,7 +89,7 @@ public class AddCategory extends AppCompatActivity {
                         String id = documentSnapshot.getId();
                         String category = documentSnapshot.getString("category");
 
-                        ModelCategory modelCategory = new ModelCategory(id, category, UserID);
+                        ModelCategory modelCategory = new ModelCategory(id, category, userID);
 
                         categoryArrayList.add(modelCategory);
                     }
@@ -102,14 +105,14 @@ public class AddCategory extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch (item.getItemId()){
+//            case android.R.id.home:
+//                finish();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 }
